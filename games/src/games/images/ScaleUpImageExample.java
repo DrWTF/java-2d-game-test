@@ -14,16 +14,16 @@ import java.util.Hashtable;
 
 import games.util.SimpleFramework;
 
-public class ScaleImageExample extends SimpleFramework {
-	int IMG_WIDTH = 320;
-	int IMG_HEIGHT = 320;
+public class ScaleUpImageExample extends SimpleFramework {
+	int IMG_WIDTH = 64;
+	int IMG_HEIGHT = 64;
 	BufferedImage sprite;
 	Image averaged;
 	double averagedSpeed;
-	Image nearestNeighbor;
+	BufferedImage nearestNeighbor;
 	double nearestSpeed;
-	BufferedImage nearest2;
-	double nearest2Speed;
+//	BufferedImage nearest2;
+//	double nearest2Speed;
 	BufferedImage bilinear;
 	double bilinearSpeed;
 	BufferedImage bicubic;
@@ -33,12 +33,12 @@ public class ScaleImageExample extends SimpleFramework {
 	BufferedImage stepDownBicubic;
 	double stepDownBicubicSpeed;
 	
-	public ScaleImageExample(){
-		appWidth = 960;
-		appHeight = 570;
+	public ScaleUpImageExample(){
+		appWidth = 900;
+		appHeight = 830;
 		appBackground = Color.DARK_GRAY;
 		appSleep = 1L;
-		appTitle = "Scale Image Example";
+		appTitle = "Scale Up Image Example";
 	}
 	
 	
@@ -58,19 +58,19 @@ public class ScaleImageExample extends SimpleFramework {
 		//
 		start = System.nanoTime();
 		for(int i=0; i<100; i++){
-			generateNearestNeighbor();
+			nearestNeighbor = scaleWithGraphics(RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 		}
 		end = System.nanoTime();
 		nearestSpeed = (end-start)/1.0E6;
 		nearestSpeed /= 100;
 		//
-		start = System.nanoTime();
-		for(int i=0; i<100; i++){
-			nearest2 = scaleWithGraphics(RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-		}
-		end = System.nanoTime();
-		nearest2Speed = (end-start)/1.0E6;
-		nearest2Speed /= 100;
+//		start = System.nanoTime();
+//		for(int i=0; i<100; i++){
+//			nearest2 = scaleWithGraphics(RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+//		}
+//		end = System.nanoTime();
+//		nearest2Speed = (end-start)/1.0E6;
+//		nearest2Speed /= 100;
 		//
 		start = System.nanoTime();
 		for(int i=0; i<100; i++){
@@ -90,7 +90,7 @@ public class ScaleImageExample extends SimpleFramework {
 		//
 		start = System.nanoTime();
 		for(int i=0; i<100; i++){
-			stepDownBilinear = scaleDownImage(RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+			stepDownBilinear = scaleUpImage(RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 		}
 		end = System.nanoTime();
 		stepDownBilinearSpeed = (end-start)/1.0E6;
@@ -98,7 +98,7 @@ public class ScaleImageExample extends SimpleFramework {
 		//
 		start = System.nanoTime();
 		for(int i=0; i<100; i++){
-			stepDownBicubic = scaleDownImage(RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+			stepDownBicubic = scaleUpImage(RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 		}
 		end = System.nanoTime();
 		stepDownBicubicSpeed = (end-start)/1.0E6;
@@ -107,19 +107,19 @@ public class ScaleImageExample extends SimpleFramework {
 
 
 
-	private BufferedImage scaleDownImage(Object hintValue) {
+	private BufferedImage scaleUpImage(Object hintValue) {
 		BufferedImage ret = sprite;
-		int targetWidth = sprite.getWidth()/4;
-		int targetHeight = sprite.getHeight()/4;
+		int targetWidth = (int)(sprite.getWidth()*3.7);
+		int targetHeight = (int)(sprite.getHeight()*3.7);
 		int w = sprite.getWidth();
 		int h = sprite.getHeight();
 		do {
-			w = w/2;
-			if(w < targetWidth){
+			w = (int)(w*1.5);
+			if(w > targetWidth){
 				w = targetWidth;
 			}
-			h = h/2;
-			if(h < targetHeight){
+			h = (int)(h*1.5);
+			if(h > targetHeight){
 				h = targetHeight;
 			}
 			BufferedImage tmp = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
@@ -135,7 +135,7 @@ public class ScaleImageExample extends SimpleFramework {
 
 
 	private BufferedImage scaleWithGraphics(Object hintValue) {
-		BufferedImage image = new BufferedImage(sprite.getWidth()/4, sprite.getHeight()/4, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage image = new BufferedImage((int)(sprite.getWidth()*3.7), (int)(sprite.getHeight()*3.7), BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2d = image.createGraphics();
 		g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, hintValue);
 		g2d.drawImage(sprite, 0, 0, image.getWidth(), image.getHeight(), null);
@@ -145,15 +145,15 @@ public class ScaleImageExample extends SimpleFramework {
 
 
 
-	private void generateNearestNeighbor() {
-		nearestNeighbor = sprite.getScaledInstance(sprite.getWidth()/4, sprite.getHeight()/4, Image.SCALE_REPLICATE);
-		nearestNeighbor.getSource().startProduction(getConsumer());
-	}
+//	private void generateNearestNeighbor() {
+//		nearestNeighbor = sprite.getScaledInstance(sprite.getWidth()/4, sprite.getHeight()/4, Image.SCALE_REPLICATE);
+//		nearestNeighbor.getSource().startProduction(getConsumer());
+//	}
 
 
 
 	private void generateAveragedInstatnce() {
-		averaged = sprite.getScaledInstance(sprite.getWidth()/4, sprite.getHeight()/4, Image.SCALE_AREA_AVERAGING);
+		averaged = sprite.getScaledInstance((int)(sprite.getWidth()*3.7), (int)(sprite.getHeight()*3.7), Image.SCALE_AREA_AVERAGING);
 		averaged.getSource().startProduction(getConsumer());
 	}
 
@@ -215,11 +215,14 @@ public class ScaleImageExample extends SimpleFramework {
 		g2d.setColor(Color.BLACK);
 		g2d.fillRect(IMG_WIDTH/2, 0, IMG_WIDTH, IMG_HEIGHT/2);
 		g2d.fillRect(0, IMG_HEIGHT/2, IMG_WIDTH/2, IMG_HEIGHT);
-		g2d.setColor(Color.RED);
-		g2d.drawLine(0, sprite.getHeight()/2, sprite.getHeight()/2, 0);
-		g2d.drawLine(sprite.getWidth(), sprite.getHeight()/2, sprite.getWidth()/2, sprite.getHeight());
-		g2d.drawLine(sprite.getWidth()/2, sprite.getHeight(), 0, sprite.getHeight()/2);
-		g2d.drawOval(0, 0, sprite.getWidth(), sprite.getHeight());
+		
+		float x1 = sprite.getWidth()/4;
+		float x2 = sprite.getWidth()*3/4;
+		float y1 = sprite.getHeight()/4;
+		float y2 = sprite.getHeight()*3/4;
+		GradientPaint gp = new GradientPaint(x1, y1, Color.BLACK, x2, y2, Color.WHITE);
+		g2d.setPaint(gp);
+		g2d.fillOval(sprite.getWidth()/4, sprite.getHeight()/4, sprite.getWidth()/2, sprite.getHeight()/2);
 		
 		g2d.setColor(Color.GREEN);
 		int dx = sprite.getWidth()/18;
@@ -232,18 +235,17 @@ public class ScaleImageExample extends SimpleFramework {
 			g2d.drawLine(0, i, sprite.getWidth(), i);
 		}
 		
-		float x1 = sprite.getWidth()/4;
-		float x2 = sprite.getWidth()*3/4;
-		float y1 = sprite.getHeight()/4;
-		float y2 = sprite.getHeight()*3/4;
-		GradientPaint gp = new GradientPaint(x1, y1, Color.BLACK, x2, y2, Color.WHITE);
-		g2d.setPaint(gp);
-		g2d.fillOval(sprite.getWidth()/4, sprite.getHeight()/4, sprite.getWidth()/2, sprite.getHeight()/2);
-		g2d.setFont(new Font("Arial", Font.BOLD, 42));
-		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g2d.setColor(Color.LIGHT_GRAY);
-		g2d.drawString("Pg.1", sprite.getWidth()/2-40, sprite.getHeight()/2-20);
-		g2d.drawString("Pg.2", sprite.getWidth()/2-40, sprite.getHeight()/2+40);
+		g2d.setColor(Color.RED);
+		g2d.drawLine(0, sprite.getHeight()/2, sprite.getHeight()/2, 0);
+		g2d.drawLine(sprite.getWidth(), sprite.getHeight()/2, sprite.getWidth()/2, sprite.getHeight());
+		g2d.drawLine(sprite.getWidth()/2, 0, sprite.getWidth(), sprite.getHeight()/2);
+		g2d.drawOval(0, 0, sprite.getWidth(), sprite.getHeight());
+		
+//		g2d.setFont(new Font("Arial", Font.BOLD, 42));
+//		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+//		g2d.setColor(Color.LIGHT_GRAY);
+//		g2d.drawString("Pg.1", sprite.getWidth()/2-40, sprite.getHeight()/2-20);
+//		g2d.drawString("Pg.2", sprite.getWidth()/2-40, sprite.getHeight()/2+40);
 		g2d.dispose();
 		
 	}
@@ -256,7 +258,7 @@ public class ScaleImageExample extends SimpleFramework {
 		g.drawImage(sprite, (canvas.getWidth()-sprite.getWidth())/2, 50, null);
 		int sw = averaged.getWidth(null);
 		int sh = averaged.getHeight(null);
-		int pos = canvas.getHeight()-sh-50;
+		int pos = sprite.getHeight()+100;
 		int textPos = pos + sh;
 		int imgPos = (sw+50)*0+50;
 		g.drawImage(averaged, imgPos, pos, null);
@@ -270,31 +272,34 @@ public class ScaleImageExample extends SimpleFramework {
 		g.drawString("Nearst", imgPos, textPos+15);
 		g.drawString(time, imgPos, textPos+30);
 
-		imgPos = (sw+50)*2+50;
-		g.drawImage(nearest2, imgPos, pos, null);
-		time = String.format("%.4f ms", nearest2Speed);
-		g.drawString("Nearst2", imgPos, textPos+15);
-		g.drawString(time, imgPos, textPos+30);
+//		imgPos = (sw+50)*2+50;
+//		g.drawImage(nearest2, imgPos, pos, null);
+//		time = String.format("%.4f ms", nearest2Speed);
+//		g.drawString("Nearst2", imgPos, textPos+15);
+//		g.drawString(time, imgPos, textPos+30);
 
-		imgPos = (sw+50)*3+50;
+		imgPos = (sw+50)*2+50;
 		g.drawImage(bilinear, imgPos, pos, null);
 		time = String.format("%.4f ms", bilinearSpeed);
 		g.drawString("Bilinear", imgPos, textPos+15);
 		g.drawString(time, imgPos, textPos+30);
+		
+		pos += nearestNeighbor.getHeight()+100;
+		textPos = pos+nearestNeighbor.getHeight();
 
-		imgPos = (sw+50)*4+50;
+		imgPos = (sw+50)*0+50;
 		g.drawImage(bicubic, imgPos, pos, null);
 		time = String.format("%.4f ms", bicubicSpeed);
 		g.drawString("Bicubic", imgPos, textPos+15);
 		g.drawString(time, imgPos, textPos+30);
 
-		imgPos = (sw+50)*5+50;
+		imgPos = (sw+50)*1+50;
 		g.drawImage(stepDownBilinear, imgPos, pos, null);
 		time = String.format("%.4f ms", stepDownBilinearSpeed);
 		g.drawString("Bilin-Step", imgPos, textPos+15);
 		g.drawString(time, imgPos, textPos+30);
 
-		imgPos = (sw+50)*6+50;
+		imgPos = (sw+50)*2+50;
 		g.drawImage(stepDownBicubic, imgPos, pos, null);
 		time = String.format("%.4f ms", stepDownBicubicSpeed);
 		g.drawString("Bicub-Step", imgPos, textPos+15);
@@ -304,7 +309,7 @@ public class ScaleImageExample extends SimpleFramework {
 
 
 	public static void main(String[] args) {
-		launchApp(new ScaleImageExample());
+		launchApp(new ScaleUpImageExample());
 	}
 
 }
